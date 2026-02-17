@@ -5,8 +5,8 @@ const cookieparser =require('cookie-parser');
 
 
 //Routers Import 
-
 const authRouters = require('./routes/auth.routes');
+
 
 app.use(express.json()); 
 app.use(cookieparser());
@@ -17,6 +17,13 @@ app.use(cors({
 })); 
 
 
+
+
+
 app.use('/api/auth', authRouters); 
+
+
+
+
 
 module.exports = app ; 

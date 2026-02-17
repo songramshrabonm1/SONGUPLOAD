@@ -224,11 +224,58 @@ module.exports = {Login, Register};
 
 ```js
 const express = require('express') ; 
+const body = require('express-validator'); 
 const { Register, Login } = require('../controllers/auth.controllers');
 const routers = express.Router() ; 
 
-routers.post('/registration' , Register); 
-routers.post('/login' , Login); 
+const RegistrationMiddlewareValidation = [
+    body('userName')
+        .trim()
+        .isLength({min : 3})
+        .withMessage('UserName Must Be 3 character present'), 
+    body('email')
+        .isEmail()
+        .normalizeEmail()
+        .withMessage('Provide Authenticate Email'),
+    body('password')
+        .isLength({min : 6})
+        .withMessage('Password Must Be Present 6 character')    
+]
+const LoginMiddlewareValidation = [
+    body('email')
+        .isEmail()
+        .normailizeEmail()
+        .withMessage('Provide Authenticate Email'),
+    body('password')
+        .isLength({min : 6})
+        .withMessage('Password Must Be Present 6 Character')
+
+]
+
+routers.post('/registration' ,RegistrationMiddlewareValidation, Register); 
+routers.post('/login', LoginMiddlewareValidation, Login); 
 
 module.exports = routers; 
 ```
+
+-  আর এই routes টা এখন app file এ export করব 
+
+```js
+const authRouters = require('./routes/auth.routes');
+app.use('/api/auth', authRouters); 
+```
+- তারপর login এর পরে user যেন valid তা check করার জন্য আমরা otp controller বানিয়েছি nodemailer দিয়ে email পাঠিয়েছি। 
+
+# আমার কি কি ভুল হয়েছে 
+
+1. select : false password এর model এ দিতে ভুলে গিয়েছি 
+2. module.exports = {connectDb} দিতে ভুলে গিয়েছি db.js file এ। 
+3. findOne({}) query ভুল লিখে ফেলেছি $or দিয়ে খুঁজার সময় findOne({or : [{email} , {userName}]}) ; 
+4. .gitignore file create না করেই আমি github এ push করে ফেলেছি git rm --catched .env দিয়ে আবার env file delete করেছি git এর থেকে তারপর gitignore file বানিয়ে তারপর আবার git add .gitignore করে git commit -m "delete " 
+5. res.cookie() হবে আমি লিখে ফেলেছি res.cookies । 
+6. this.isModified('password') হবে this.isModify না আর argument হিসেবে password দিতে হবে। 
+7. async function এ this.isModified check করা যাবে না function লিখতে হবে normal 
+8. তারপর আমি routes export করেছি module.exports = {routes} এভাবে আর import করার সময় const router = দিয়ে করেছি এইটা হবে না কারণ এইটা আমি export করতেছি object হিসেবে তাই আমার export করতে হবে module.exports = routes / module.exports = connectedb 
+9. login router get method use  করেছি কিন্তু এইটা post method হবে। 
+10. const genSalt = await bcrypt.genSalt(Number(process.env.SALT))
+11. login করার সময় যে findOne করতে ছিলাম তখন .select("+password") দিতে হবে নাহলে compare password এর সময় this.password কাজ করবে না। 

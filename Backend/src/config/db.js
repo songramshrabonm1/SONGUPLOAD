@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const connectedDb = async()=>{
     try{
         await mongoose.connect(process.env.MONGOOSE_URI); 
+        console.log(`Connected database succesfullyyyyy`)
     }catch(error){
         console.error(error.message); 
         process.exit(1) ; 
@@ -10,3 +11,5 @@ const connectedDb = async()=>{
         // তাহলে সরাসরি app বন্ধ হয়ে যাবে  
     }
 }
+
+module.exports = connectedDb ;
