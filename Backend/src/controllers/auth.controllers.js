@@ -41,7 +41,7 @@ const Register = async (req, res , next) => {
       role,
     });
     const token = jwt.sign(
-      { userId: UserCreate._id, role: UserCreate.role },
+      { email : UserCreate.email ,userId: UserCreate._id, role: UserCreate.role },
       process.env.JWT_SECRET_KEY,
       { expiresIn: process.env.TokenExpireTime },
     );
@@ -96,6 +96,7 @@ const Login = async(req, res) => {
     }
     console.log('ismatchpassword');
     const isMatchPassword = await userExist.ComparePassword(password);
+    console.log('isMatchPassword', isMatchPassword);
     if (!isMatchPassword) {
       return res.status(401).json({
         success: false,
@@ -104,11 +105,15 @@ const Login = async(req, res) => {
       });
     }
 
-    const token = jwt.sign(
-      { userId: userExist._id },
-      process.env.JWT_SECRET_KEY,
-      { expiresIn: process.env.TokenExpireTime },
-    );
+        const token = jwt.sign(
+          {
+            email: userExist.email,
+            userId: userExist._id,
+            role: userExist.role,
+          },
+          process.env.JWT_SECRET_KEY,
+          { expiresIn: process.env.TokenExpireTime },
+        );
     res.cookie("token", token);
 
     res.status(200).json({
@@ -146,6 +151,61 @@ const Login = async(req, res) => {
   }
 };
 
+
+const resendOtp = async(req, res)=>{
+  try{
+    const token = req.cookies['token'] ;
+    console.log('token: ', token) ; 
+    if(!token){
+      return res.status(401).json({
+        message : "Authorization Error" , 
+        success : false , 
+        statusCode : 401 
+      })
+    } 
+    const verifyToken = await jwt.verify(token , process.env.JWT_SECRET_KEY) ; 
+    if(!verifyToken){
+      return res.status(401).json({
+        message : "INVALID TOKEN" , 
+        success : false , 
+        statusCode : 401 
+      })
+    }
+    const email = verifyToken.email ; 
+    const userExist = await UserModel.findOne({email}) ; 
+    if(!userExist){
+      return res.status(401).json({
+        success : false , 
+        statusCode : 401 , 
+        message : 'Authenctication Error'
+      })
+    }
+    const otp = Math.floor(100000+ Math.random()*999999)
+    const OtpGenerate = otp.toString() ; 
+
+    userExist.otp = OtpGenerate; 
+    userExist.OtpTime = Date.now() + 5*60*1000; 
+    userExist.isOtpExpired = false 
+
+    await userExist.save() ; 
+
+    await sendOtpEmail(email , userExist.userName , OtpGenerate) ; 
+
+    return res.status(200).json({
+      success : true , 
+      message : 'Send Otp Successfully' , 
+      statusCode : 200 
+    })
+
+  }catch(error){
+    console.error(error.message) ; 
+    return res.status(500).json({
+      message : "Internal Server Error", 
+      success : false , 
+      statusCode : 500 
+    })
+  }
+}
 
 const sendOtp = async(req,res)=>{
     try{
@@ -204,4 +264,4 @@ const sendOtp = async(req,res)=>{
     }
 }
 
-module.exports = { Login, Register, sendOtp };
+module.exports = { Login, Register, sendOtp, resendOtp };

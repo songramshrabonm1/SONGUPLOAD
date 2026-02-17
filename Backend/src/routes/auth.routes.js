@@ -2,7 +2,12 @@ const express = require('express');
 const { body } = require("express-validator");
 const routers = express.Router() ; 
 
-const { Register, Login, sendOtp } = require("../controllers/auth.controllers");
+const {
+  Register,
+  Login,
+  sendOtp,
+  resendOtp,
+} = require("../controllers/auth.controllers");
 
 const RegisteredMiddlewareValidation = [
     body('email')
@@ -43,5 +48,6 @@ const otpMiddlewareValidation = [
 routers.post("/Registration", RegisteredMiddlewareValidation, Register);
 routers.post("/Login", LoginMiddlewareValidation, Login);
 routers.post("/OTP", otpMiddlewareValidation,sendOtp);
+routers.get("/resendOtp", resendOtp);
 
 module.exports = routers;

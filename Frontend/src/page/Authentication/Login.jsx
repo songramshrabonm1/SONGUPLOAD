@@ -2,6 +2,7 @@ import React from 'react'
 import axios from 'axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import Otp from './Otp';
 const Login = () => {
     const [data, setData] = useState({
       Confirmpassword: "",
@@ -33,12 +34,20 @@ const Login = () => {
               }, 
               {
                 'headers' : {
-                    "Content-Type": "application/json"
-                }
+                    "Content-Type": "application/json",
+                    
+                    
+                }, 
+                 withCredentials : true 
               }
             );
             console.log(res.data); 
-            navigate('/otp');
+            // <Otp email = {data.email} password={data.password}></Otp>
+            navigate('/otp' , {
+                state : {
+                    email :  data.email
+                }
+            });
             
         }catch(error){
             console.error(error.message);
@@ -46,15 +55,15 @@ const Login = () => {
     }
   return (
     <div className="">
-      <div className=" flex flex-col justify-center items-center mt-20">
-        <h1 className="text-4xl font-bold text-center  font-serif">
+      <div className=" flex flex-col flex-wrap justify-center items-center mt-20">
+        <h1 className="text-4xl font-bold text-center  font-serif text-wrap">
           Welcome Back
         </h1>
       
       </div>
-      <div className="flex flex-col justify-center items-center mt-10">
+      <div className="flex flex-col  justify-center items-center mt-10">
         <form
-          className="border-green-300 border-2 rounded-2xl px-20 pb-10"
+          className="border-green-300 border-2 rounded-2xl px-10 pb-10"
           onSubmit={handleSubmit}
         >
          
@@ -70,7 +79,7 @@ const Login = () => {
             name="email"
             required
             onChange={handleChange}
-            className="border mt-1 border-green-300 rounded outline-green-600 p-4 "
+            className="border mt-1 border-green-300 rounded outline-green-600  p-4 "
           />
           <br></br>
           <br></br>
