@@ -1,56 +1,56 @@
-import React from 'react'
-import { useState } from 'react';
-import axios from 'axios'
+import React from "react";
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router";
 const Registration = () => {
-    
-    const [valuee, setValue] = useState({
-      userName: "",
-      email: "",
-      password: "",
-      Confirmpassword: "",
-    }); 
+  const [valuee, setValue] = useState({
+    userName: "",
+    email: "",
+    password: "",
+    Confirmpassword: "",
+  });
+  const navigate = useNavigate() ;
 
-    const handleChange = (e )=>{
-        const {name , value } = e.target ; 
-        console.log(name,value);
-      
-        setValue((prev)=> ({...prev, [name] : value}));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log(name, value);
+
+    setValue((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log(valuee);
+    if (valuee.Confirmpassword !== valuee.password) {
+      alert("Confirm password is not match...");
+      return;
     }
-    
-    const handleSubmit = async(e)=>{
-        e.preventDefault(); 
-        console.log(valuee);
-        if(valuee.Confirmpassword !== valuee.password){
-            alert('Confirm password is not match...');
-            return ; 
-        }
 
-        console.log(valuee.userName);
-        console.log(valuee.email); 
-        console.log(valuee.password);
+    console.log(valuee.userName);
+    console.log(valuee.email);
+    console.log(valuee.password);
 
-     
-        try{
-
-          const res =  await axios.post(
-              `http://localhost:3000/api/auth/Registration`,
-              {
-                userName : valuee.userName, 
-                email : valuee.email, 
-                password : valuee.password
-              },
-              {
-                headers: {
-                  "content-type": "application/json",
-                },
-              },
-            );
-            console.log(res.data);
-        }catch(error){
-            console.error(error.message);
-        }
+    try {
+      const res = await axios.post(
+        `http://localhost:3000/api/auth/Registration`,
+        {
+          userName: valuee.userName,
+          email: valuee.email,
+          password: valuee.password,
+        },
+        {
+          headers: {
+            "content-type": "application/json",
+          },
+        },
+      );
+      console.log(res.data);
+      navigate("/login"); 
+    } catch (error) {
+      console.error(error.message);
     }
-    
+  };
+
   return (
     <div>
       <div className=" flex flex-col justify-center items-center mt-20">
@@ -131,6 +131,6 @@ const Registration = () => {
       </div>
     </div>
   );
-}
+};
 
-export default Registration
+export default Registration;

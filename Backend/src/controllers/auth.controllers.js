@@ -115,7 +115,11 @@ const Login = async(req, res) => {
       success: true,
       message: "Login Successfully... & send Otp for validation",
       statusCode: 200,
-      data: userExist,
+      data: {
+        email : userExist.email , 
+        
+
+      },
       token,
     });
 
