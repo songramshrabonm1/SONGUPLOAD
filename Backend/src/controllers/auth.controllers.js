@@ -70,6 +70,13 @@ const Register = async (req, res , next) => {
 
 const Login = async(req, res) => {
   try {
+       const validatinError = validationResult(req);
+       if (!validatinError.isEmpty()) {
+         return res.status(400).json({
+           success: false,
+           error: validatinError.array(),
+         });
+       }
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({
@@ -78,13 +85,7 @@ const Login = async(req, res) => {
         statusCode: 400,
       });
     }
-    const validatinError = validationResult(req) ; 
-    if(!validatinError.isEmpty()){
-      return res.status(400).json({
-        success : false , 
-        error : validatinError.array()
-      })
-    }
+ 
     const userExist = await UserModel.findOne({ email }).select("+password");
     if (!userExist) {
       return res.status(400).json({
@@ -102,13 +103,7 @@ const Login = async(req, res) => {
         message: "Wrong Password",
       });
     }
-    const validationError = validationResult(req); 
-    if(validationError){
-      return res.status(400).json({
-        success : false , 
-        error : validatinError.array() ; 
-      })
-    }
+
     const token = jwt.sign(
       { userId: userExist._id },
       process.env.JWT_SECRET_KEY,
@@ -163,7 +158,7 @@ const sendOtp = async(req,res)=>{
           return res.status(400).json({
             success : false , 
             statusCode : 400 , 
-            error : validationError.array();
+            error : validationError.array()
           })
         }
         const UserExist = await UserModel.findOne({email}) ; 
